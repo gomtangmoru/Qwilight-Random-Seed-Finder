@@ -30,7 +30,7 @@ jobs:
       - name: build macos
         if: matrix.os == 'macos-latest'
         run: |
-          uv run pyinstaller --noconfirm --windowed --name "QwilightSeedFinder" --icon "resource/icon.ico" --add-data "resource:resource" app.py
+          uv run pyinstaller --noconfirm --windowed --name "QwilightSeedFinder" --icon "resource/icon.icns" --add-data "resource:resource" app.py
           cd dist
           zip -r ../QwilightSeedFinder-Mac.zip QwilightSeedFinder.app
 
