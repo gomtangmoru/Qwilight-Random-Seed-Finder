@@ -1,0 +1,58 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+
+    steps:
+      - name: pull repository
+        uses: actions/checkout@v4
+
+      - name: set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: sync dependencies
+        run: uv sync
+
+      - name: build macos
+        if: matrix.os == 'macos-latest'
+        run: |
+          uv run pyinstaller --noconfirm --windowed --name "QwilightSeedFinder" --icon "resource/icon.ico" --add-data "resource:resource" app.py
+          cd dist
+          zip -r ../QwilightSeedFinder-Mac.zip QwilightSeedFinder.app
+
+      - name: build windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          uv run pyinstaller --noconfirm --windowed --name "QwilightSeedFinder" --icon "resource/icon.ico" --add-data "resource;resource" app.py
+          Compress-Archive -Path dist\QwilightSeedFinder\* -DestinationPath QwilightSeedFinder-Windows.zip
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: QwilightSeedFinder-${{ matrix.os }}
+          path: |
+            QwilightSeedFinder-Mac.zip
+            QwilightSeedFinder-Windows.zip
+          if-no-files-found: ignore
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            QwilightSeedFinder-Mac.zip
+            QwilightSeedFinder-Windows.zip
