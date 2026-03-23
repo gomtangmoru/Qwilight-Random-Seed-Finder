@@ -1,0 +1,10 @@
+[project]
+name = "qwilight-random-seed-finder"
+version = "0.1.0"
+description = "Qwilight Seed Finder"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "pyinstaller>=6.19.0",
+    "pywebview>=6.1",
+]
